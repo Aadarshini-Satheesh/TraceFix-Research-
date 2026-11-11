@@ -1,0 +1,62 @@
+# ─── render.yaml ─────────────────────────────────────────────────────────────
+# Render Blueprint for TraceFix Research Backend
+# Deploy: https://render.com/docs/blueprint-spec
+# 
+# HOW TO DEPLOY:
+#   1. Push this repository to GitHub.
+#   2. Go to https://dashboard.render.com → "New Blueprint"
+#   3. Connect your GitHub repo and select this render.yaml.
+#   4. Render will auto-detect the service and deploy it.
+#   5. After deployment, copy the service URL (e.g. https://tracefix-api.onrender.com)
+#   6. Set VITE_API_URL to that URL in your Netlify environment variables.
+
+services:
+  - type: web
+    name: tracefix-research-api
+    runtime: python
+    region: oregon
+    plan: free
+
+    # Build from the backend/ subdirectory
+    rootDir: backend
+
+    buildCommand: pip install -r requirements.txt
+
+    # Start command – $PORT is set automatically by Render
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+    # Health check endpoint
+    healthCheckPath: /api/health
+
+    # Persistent disk for SQLite database and uploaded repos
+    disk:
+      name: tracefix-data
+      mountPath: /app/data
+      sizeGB: 1
+
+    envVars:
+      # Storage root that config.py reads
+      - key: DATA_ROOT
+        value: /app/data
+
+      # Set ALLOWED_ORIGINS after you know your Netlify URL, e.g.:
+      # - key: ALLOWED_ORIGINS
+      #   value: https://tracefix-research.netlify.app
+      - key: ALLOWED_ORIGINS
+        value: "*"
+
+      # AI Provider (optional – leave as mock for demo)
+      - key: DEFAULT_PROVIDER
+        value: mock
+
+      # Uncomment and set your keys to enable real AI:
+      # - key: GEMINI_API_KEY
+      #   sync: false   # prompts you to enter it in the Render dashboard
+      # - key: OPENAI_API_KEY
+      #   sync: false
+
+      - key: DEBUG
+        value: "false"
+
+      - key: PYTHON_VERSION
+        value: "3.11"
