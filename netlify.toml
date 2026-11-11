@@ -1,0 +1,29 @@
+# Netlify configuration for TraceFix Research
+# Frontend: React + Vite (build output: frontend/dist)
+# Backend: Deployed separately (FastAPI on a server or Render/Railway)
+
+[build]
+  # Root of the repository
+  base    = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Node version pinning (must match local dev)
+  NODE_VERSION = "20"
+  # npm cache on the build machine (Netlify's CI uses Linux, not E:)
+  NPM_CONFIG_CACHE = ".cache/npm"
+
+# SPA fallback: all routes that don't match a file are served index.html
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+# Optional: proxy /api/* to the backend during Netlify builds (dev previews)
+# Uncomment and set VITE_API_URL in Netlify's environment variables UI instead.
+# [[redirects]]
+#   from   = "/api/*"
+#   to     = ":BACKEND_URL/api/:splat"
+#   status = 200
+#   force  = true
